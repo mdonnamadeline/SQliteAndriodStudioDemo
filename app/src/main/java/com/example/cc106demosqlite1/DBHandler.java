@@ -51,10 +51,4 @@ public class DBHandler extends SQLiteOpenHelper {
         long newrowid = db.insert(TABLE_NAME, null, studValues);
         db.close();
     }
-
-
-
-
-
-
 }
