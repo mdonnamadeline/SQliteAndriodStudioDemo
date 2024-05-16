@@ -88,7 +88,12 @@ public class DBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-
+    //delete student
+    public void deleteStudent(Student student) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NAME, COLUMN_ID + " = ?", new String[]{String.valueOf(student.getId())});
+        db.close();
+    }
 
 
 

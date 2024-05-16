@@ -2,15 +2,18 @@ package com.example.cc106demosqlite1;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     EditText txtName, txtLocation, txtCourse;
-    Button btnSave, btnView;
+    Button btnSave, btnView, btnDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         txtCourse = findViewById(R.id.txtCourse);
         btnSave = findViewById(R.id.btnSave);
         btnView = findViewById(R.id.btnView);
+        btnDelete = findViewById(R.id.btnDelete);
 
 
         Intent intent = getIntent();
@@ -35,9 +39,15 @@ public class MainActivity extends AppCompatActivity {
 
             // change the text of the button
             btnSave.setText("Update");
+
+            // show the delete button
+            btnDelete.setVisibility(View.VISIBLE);
         } else {
             // change the text of the button
             btnSave.setText("Save");
+
+            // hide the delete button
+            btnDelete.setVisibility(View.GONE);
         }
 
         btnSave.setOnClickListener(v -> {
@@ -79,6 +89,23 @@ public class MainActivity extends AppCompatActivity {
 
         btnView.setOnClickListener(v -> {
             startActivity(StudentList.class);
+        });
+
+        btnDelete.setOnClickListener(v -> {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Delete Confirmation")
+                    .setMessage("Are you sure you want to delete this student?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            DBHandler dbHandler = new DBHandler(MainActivity.this);
+                            dbHandler.deleteStudent(student);
+                            toastMessage("Student deleted successfully");
+                            // Redirect to the list of students
+                            startActivity(new Intent(MainActivity.this, StudentList.class));
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
         });
     }
 
