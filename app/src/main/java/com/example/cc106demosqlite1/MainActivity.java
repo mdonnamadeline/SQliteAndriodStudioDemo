@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -24,65 +23,70 @@ public class MainActivity extends AppCompatActivity {
         btnSave = findViewById(R.id.btnSave);
         btnView = findViewById(R.id.btnView);
 
+
         Intent intent = getIntent();
-        if (intent.hasExtra("selectedStudent")) {
-            String selectedStudent = intent.getStringExtra("selectedStudent");
-            String[] studentData = selectedStudent.split(", ");
+        Student student = (Student) intent.getSerializableExtra("Student");
 
-            // Assuming that your studentData array contains the id, name, location, and course in that order
-            String id = studentData[0];
-            String name = studentData[1];
-            String location = studentData[2];
-            String course = studentData[3];
+        if (student != null) {
+            // populate your input fields with the student's information
+            txtName.setText(student.getName());
+            txtLocation.setText(student.getLocation());
+            txtCourse.setText(student.getCourse());
 
-            // Set the data to your views here...
+            // change the text of the button
+            btnSave.setText("Update");
+        } else {
+            // change the text of the button
+            btnSave.setText("Save");
         }
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String name = txtName.getText().toString();
-                String location = txtLocation.getText().toString();
-                String course = txtCourse.getText().toString();
 
-                String selectedStudent = getIntent().getStringExtra("selectedStudent");
-                String id = null;
-                if (selectedStudent != null) {
-                    String[] studentData = selectedStudent.split(", ");
-                    id = studentData[0];
+        btnSave.setOnClickListener(v -> {
+            String name = txtName.getText().toString();
+            String location = txtLocation.getText().toString();
+            String course = txtCourse.getText().toString();
 
-                }
+            if(name.isEmpty()){
+                toastMessage("Name is required");
+                return;
+            }
 
-                if(name.isEmpty()){
-                    toastMessage("Name is required");
-                    return;
-                }
+            if(location.isEmpty()){
+                toastMessage("Location is required");
+                return;
+            }
 
-                if(location.isEmpty()){
-                    toastMessage("Location is required");
-                    return;
-                }
+            if(course.isEmpty()){
+                toastMessage("Course is required");
+                return;
+            }
 
-                if(course.isEmpty()){
-                    toastMessage("Course is required");
-                    return;
-                }
 
-                DBHandler db = new DBHandler(MainActivity.this);
-                boolean isNewRecord = db.saveStudentInfo(id, name, location, course); // Get the return value here
-                String toastMessage = isNewRecord ? "Student info saved" : "Student info updated";
-                Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+            DBHandler dbHandler = new DBHandler(this);
+            if (student != null) {
+                // update existing student
+                student.setName(name);
+                student.setLocation(location);
+                student.setCourse(course);
+                dbHandler.updateStudent(student);
+                toastMessage("Student updated successfully");
+            } else {
+                // add new student
+                Student newStudent = new Student(name, location, course);
+                dbHandler.addStudent(newStudent);
+                toastMessage("Student added successfully");
             }
         });
-        btnView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               Intent intent = new Intent(MainActivity.this, studentList.class);
-               startActivity(intent);
-            }
+
+        btnView.setOnClickListener(v -> {
+            startActivity(StudentList.class);
         });
     }
 
     private void toastMessage(String message){
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void startActivity(Class<?> cls){
+        startActivity(new Intent(this, cls));
     }
 }

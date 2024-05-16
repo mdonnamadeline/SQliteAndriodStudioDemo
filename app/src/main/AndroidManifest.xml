@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".studentList" />
+        <activity android:name=".StudentList" />
     </application>
 
 </manifest>

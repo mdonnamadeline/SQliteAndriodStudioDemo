@@ -9,29 +9,41 @@ import android.view.View;
 import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
+import java.util.List;
 
-public class studentList extends AppCompatActivity {
-    ListView liststudents;
-    Button btnBack;
+public class StudentList extends AppCompatActivity {
+    private ListView liststudents;
+    private Button btnBack;
+    private List<Student> students;
+    private DBHandler dbHandler;
+
 
     @Override
     protected void  onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_studentlist);
 
-        DBHandler db = new DBHandler(this);
         liststudents = findViewById(R.id.liststudents);
         btnBack = findViewById(R.id.btnBack);
-        ArrayList<String> studentList = db.readStudent();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, studentList);
+
+        dbHandler = new DBHandler(this);
+        students = dbHandler.getAllStudents();
+
+        List<String> studentStrings = new ArrayList<>();
+        for (Student student : students) {
+            studentStrings.add(student.toString());
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, studentStrings);
         liststudents.setAdapter(adapter);
 
         liststudents.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String selectedStudent = (String) parent.getItemAtPosition(position);
-                Intent intent = new Intent(studentList.this, MainActivity.class);
-                intent.putExtra("selectedStudent", selectedStudent);
+                Student selectedStudent = students.get(position);
+
+                Intent intent = new Intent(StudentList.this, MainActivity.class);
+                intent.putExtra("Student", selectedStudent);
                 startActivity(intent);
             }
         });
@@ -39,7 +51,7 @@ public class studentList extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(studentList.this, MainActivity.class);
+                Intent intent = new Intent(StudentList.this, MainActivity.class);
                 startActivity(intent);
             }
         });
